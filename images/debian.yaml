@@ -1056,23 +1056,6 @@ files:
   releases:
   - buster
 
-- path: /etc/systemd/network/eth0.network
-  generator: dump
-  content: |-
-    [Match]
-    Name=eth0
-    [Network]
-    DHCP=true
-    [DHCPv4]
-    UseDomains=true
-  types:
-  - container
-  releases:
-  - bullseye
-  - bookworm
-  - sid
-  - trixie
-
 - path: /etc/systemd/network/enp5s0.network
   generator: dump
   content: |-
@@ -1183,6 +1166,7 @@ packages:
   - packages:
     - dbus
     - systemd-resolved
+    - ifupdown2
     action: install
     early: true
     releases:
@@ -1275,7 +1259,7 @@ packages:
     - s390x
   - name: sources.list
     url: |-
-      deb http://deb.debian.org/debian sid main
+      deb http://deb.debian.org/debian/ sid main
     architectures:
     - riscv64
 
@@ -1339,8 +1323,11 @@ actions:
     #!/bin/sh
     set -eux
 
-    # Enable networkd socket
-    systemctl enable systemd-networkd.socket
+    # Disable networkd service; this prevents the container from getting 2 IPv4 addresses on
+    # startup.
+    # Disable networkd socket
+    systemctl disable systemd-networkd.socket
+    systemctl disable systemd-networkd.service
   types:
   - container
   releases:
@@ -1478,6 +1465,7 @@ actions:
     #!/bin/sh
     set -eux
 
+    mkdir -p /etc/network
     umount -l /etc/resolv.conf || true
     ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
   releases:
