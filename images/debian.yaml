@@ -1323,11 +1323,8 @@ actions:
     #!/bin/sh
     set -eux
 
-    # Disable networkd service; this prevents the container from getting 2 IPv4 addresses on
-    # startup.
-    # Disable networkd socket
-    systemctl disable systemd-networkd.socket
-    systemctl disable systemd-networkd.service
+    # Enable networkd socket
+    systemctl enable systemd-networkd.socket
   types:
   - container
   releases:
